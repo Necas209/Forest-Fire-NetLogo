@@ -1,0 +1,72 @@
+{
+  "@context": "http://schema.org",
+  "@type": "SoftwareSourceCode",
+  "isPartOf": {
+    "@type": "WebApplication",
+    "applicationCategory": "Computational Modeling Software Repository",
+    "operatingSystem": "Any",
+    "name": "CoMSES Model Library",
+    "url": "https://www.comses.net/codebases"
+  },
+  "publisher": {
+    "@id": "https://www.comses.net",
+    "@type": "Organization",
+    "name": "CoMSES Net",
+    "url": "https://www.comses.net"
+  },
+  "provider": {
+    "@id": "https://www.comses.net",
+    "@type": "Organization",
+    "name": "CoMSES Net",
+    "url": "https://www.comses.net"
+  },
+  "name": "Creating Intelligent Agents",
+  "description": "This model was developed to test the usability of evolutionary computing and reinforcement learning by extending a well known agent-based model. Sugarscape (Epstein & Axtell, 1996) has been used to demonstrate migration, trade, wealth inequality, disease processes, sex, culture, and conflict. It is on conflict that this model is focused to demonstrate how machine learning methodologies could be applied.\n\nThe code is based on the Sugarscape 2 Constant Growback model, availble in the NetLogo models library. New code was added into the existing model while removing code that was not needed and modifying existing code to support the changes. Support for the original movement rule was retained while evolutionary computing, Q-Learning, and SARSA Learning were added.",
+  "version": "1.0.0",
+  "targetProduct": {
+    "@type": "SoftwareApplication",
+    "operatingSystem": "windows",
+    "applicationCategory": "Computational Model",
+    "downloadUrl": "https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/download/",
+    "releaseNotes": "Initial release. A conference paper discussing the use of this model will be released at the The Computational Social Science Society of the Americas CSS 2020 conference in October 2020.",
+    "softwareVersion": "1.0.0",
+    "identifier": "https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/",
+    "sameAs": "https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/",
+    "screenshot": "https://www.comses.net/images/605EZN-s40tdC1CTey1DIZ6WUlg=/634/fill-205x115/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/media/sharedlibraryffb52fc3-69e1-4bbd.png"
+  },
+  "programmingLanguage": [
+    {
+      "@type": "ComputerLanguage",
+      "name": "NetLogo 6.1"
+    }
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Dale",
+      "familyName": "Brearcliffe",
+      "@id": "https://orcid.org/0000-0003-0142-000X",
+      "email": "dbrearcl@masonlive.gmu.edu"
+    },
+    {
+      "@type": "Person",
+      "givenName": "Andrew",
+      "familyName": "Crooks",
+      "@id": "https://orcid.org/0000-0002-5034-6654"
+    }
+  ],
+  "identifier": "https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/",
+  "dateCreated": "2020-06-17T00:26:02.018497+00:00",
+  "dateModified": "2020-09-25T12:50:08.508209+00:00",
+  "keywords": [
+  ],
+  "runtimePlatform": [
+    "NetLogo 6.1"
+  ],
+  "url": "https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/",
+  "datePublished": "2020-09-25",
+  "citation": "Dale Brearcliffe, Andrew Crooks (2020, September 25). \"Creating Intelligent Agents\" (Version 1.0.0). _CoMSES Computational Model Library_. Retrieved from: https://www.comses.net/codebases/ffb52fc3-69e1-4bbd-b5d7-fa460617f74e/releases/1.0.0/",
+  "copyrightYear": 2020,
+  "license": "http://creativecommons.org/licenses/by-nc-sa/3.0",
+  "releaseNotes": "Initial release. A conference paper discussing the use of this model will be released at the The Computational Social Science Society of the Americas CSS 2020 conference in October 2020."
+}

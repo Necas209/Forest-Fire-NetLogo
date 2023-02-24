@@ -1,0 +1,11 @@
+Reqs:
+- topologia
+- vento
+- temperatura
+- fagulhas
+- tipo de árvore
+- árvores -> agentes estáticos
+
+Relatório:
+- Estado da arte
+- Regras
