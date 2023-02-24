@@ -10,17 +10,51 @@ breed [embers ember]  ;; turtles gradually fading from red to near black
 
 to create-forest
   clear-all
-  ask patches [set pcolor green]
+  ask patches [set pcolor 3]
   ;; make some green trees
-  ask patches with [(random-float 100) < density] [
-    create-pinetrees 1 [
-      setxy xcor ycor
+  let x min-pxcor
+  let y min-pycor
+  while [ x <= max-pxcor ] [
+    while [ y <= max-pycor ] [
+      if create-tree x y [ set initial-trees initial-trees + 1 ]
+      set y y + 1
     ]
+    set y min-pycor
+    set x x + 1
   ]
-  ;; set tree counts
-  set initial-trees count patches with [pcolor = green]
   set burned-trees 0
   reset-ticks
+end
+
+to-report create-tree [x y]
+  let th 0.5
+  set x x + (random-float th) - th
+  set y y + (random-float th) - th
+
+  if (random-float 100) < density [
+    let tree-type pick-tree
+    ifelse tree-type [
+      create-pinetrees 1 [
+        setxy x y
+        set shape "pine tree"
+        set color green
+      ]
+    ]
+    [
+      create-oaktrees 1 [
+        setxy x y
+        set shape "oak tree"
+        set color green
+      ]
+    ]
+    report true
+  ]
+  report false
+end
+
+to-report pick-tree
+  let threshold 0.5
+  report (random-float 1) < threshold
 end
 
 to start-fire
@@ -100,7 +134,7 @@ density
 density
 1
 100
-50.0
+34.0
 1
 1
 %
@@ -139,6 +173,17 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+71
+228
+149
+273
+Initial Trees
+initial-trees
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
