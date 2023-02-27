@@ -1,108 +1,116 @@
-globals [
-  initial-trees
-  burned-trees
+trees-own [
+  burn-speed
+  spark-prob
+  spread-prob
+  is-burning
+  is-burnt
+  kind
 ]
 
-breed [pinetrees pinetree]
-breed [oaktrees oaktree]
-breed [fires fire]    ;; bright red turtles -- the leading edge of the fire
-breed [embers ember]  ;; turtles gradually fading from red to near black
+breed [trees tree]
+breed [fires fire]
 
 to create-forest
   clear-all
   ask patches [set pcolor 33]
-  ;; make some green trees
-  let x min-pxcor
-  let y min-pycor
-  while [ x <= max-pxcor ] [
-    while [ y <= max-pycor ] [
-      if create-tree x y [ set initial-trees initial-trees + 1 ]
-      set y y + 1
-    ]
-    set y min-pycor
-    set x x + 1
+  ask patches with [random-float 100 < density] [
+    plant-tree pxcor pycor
   ]
-  set burned-trees 0
   reset-ticks
 end
 
-to-report create-tree [x y]
-  let th 0.5
-  set x x + (random-float th) - th
-  set y y + (random-float th) - th
-
-  if (random-float 100) < density [
-    let tree-type pick-tree
-    ifelse tree-type [
-      create-pinetrees 1 [
-        setxy x y
-        set shape "pine tree"
-        set color green
-      ]
+to plant-tree [x y]
+  let th 1
+  set x (random-pcor x th "x")
+  set y (random-pcor y th "y")
+  let tree-type random-tree-type
+  sprout-trees 1 [
+    setxy x y
+    set color green
+    set shape tree-type
+    set kind tree-type
+    set is-burning false
+    set is-burnt false
+    ifelse tree-type = "pine-tree" [
+      set spread-prob 0.05
+      set burn-speed 0.5
+    ] [
+      set spread-prob 0.02
+      set burn-speed 0.2
     ]
-    [
-      create-oaktrees 1 [
-        setxy x y
-        set shape "oak tree"
-        set color green
-      ]
-    ]
-    report true
   ]
-  report false
 end
 
-to-report pick-tree
-  let threshold 0.5
-  report (random-float 1) < threshold
+to-report random-pcor [pcor th dir]
+  set pcor pcor + (random-float th) - th
+  let min-pcor min-pxcor
+  let max-pcor max-pxcor
+  if dir = "y" [
+    set min-pcor min-pycor
+    set max-pcor max-pycor
+  ]
+  set pcor median (list min-pcor pcor max-pcor)
+  report pcor
 end
 
 to start-fire
-  ;; make a column of burning trees
-  ask patches with [pxcor = min-pxcor]
-    [ ignite ]
-  ;; set tree counts
-  set initial-trees count patches with [pcolor = green]
-  set burned-trees 0
+  ask n-of 10 patches [ ignite ]
 end
 
 to go
-  if not any? turtles  ;; either fires or embers
-    [ stop ]
-  ask fires
-    [ ask neighbors4 with [pcolor = green]
-        [ ignite ]
-      set breed embers ]
+  if not any? (turtle-set trees with [is-burning]) [ stop ]
+  ask trees with [is-burning] [
+    if color < yellow and random-float 1 < spread-prob [
+      ask neighbors4 with [any? trees-here] [ ignite ]
+    ]
+  ]
+  ask fires [ die ]
   fade-embers
   tick
 end
 
-;; creates the fire turtles
-to ignite  ;; patch procedure
-  sprout-fires 1
-    [ set color red ]
-  set pcolor black
-  set burned-trees burned-trees + 1
+to ignite
+  sprout-fires 1 [
+    set shape "fire"
+    set size 1.5
+    ask trees-here [
+      set is-burning true
+    ]
+  ]
 end
 
 ;; achieve fading color effect for the fire as it burns
 to fade-embers
-  ask embers
-    [ set color color - 0.3  ;; make red darker
-      if color < red - 3.5     ;; are we almost at black?
-        [ set pcolor color
-          die ] ]
+  ask trees with [is-burning] [
+    set color color - burn-speed  ;; make red darker
+    if color < red - 3.5 [ ;; are we almost at black?
+      ask patch-here [
+        set pcolor 2
+      ]
+      set is-burning false
+      set is-burnt true
+      set shape "charred-ground"
+    ]
+  ]
 end
 
+to-report random-tree-type
+  let tree-types ["oak-tree" "pine-tree"]
+  report one-of tree-types
+end
 
-; Copyright 1997 Uri Wilensky.
-; See Info tab for full copyright and license.
+to-report count-trees-burnt [tree-type]
+  report count trees with [
+    (kind = tree-type or tree-type = "")
+    and (is-burning or is-burnt)
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-647
-448
+291
+42
+728
+480
 -1
 -1
 13.0
@@ -112,39 +120,39 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
 
 SLIDER
 32
-147
-204
-180
+163
+275
+196
 density
 density
 1
 100
-34.0
+100.0
 1
 1
 %
 HORIZONTAL
 
 BUTTON
-77
-61
-186
-94
+30
+41
+270
+74
 Create Forest
 create-forest
 NIL
@@ -158,10 +166,10 @@ NIL
 1
 
 BUTTON
-77
-102
-186
-135
+30
+106
+150
+139
 Start Fire
 start-fire
 NIL
@@ -175,15 +183,52 @@ NIL
 1
 
 MONITOR
-71
-228
-149
-273
-Initial Trees
-initial-trees
+31
+217
+274
+262
+Number of trees left
+count trees with [not (is-burning or is-burnt)]
 17
 1
 11
+
+PLOT
+27
+290
+273
+481
+Trees burnt
+Time
+No. trees
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -2674135 true "" "plot count-trees-burnt \"\""
+"pen-1" 1.0 0 -13210332 true "" "plot count-trees-burnt \"pine-tree\""
+"pen-2" 1.0 0 -12440034 true "" "plot count-trees-burnt \"oak-tree\""
+
+BUTTON
+166
+106
+271
+139
+Go
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -278,7 +323,7 @@ Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
 Circle -7500403 true true 47 195 58
 Circle -7500403 true true 195 195 58
 
-charred ground
+charred-ground
 false
 0
 Polygon -2674135 true false 0 240 45 195 75 180 90 165 90 135 45 120 0 135
@@ -349,10 +394,10 @@ Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 
 
 fire
 false
-1
-Polygon -2674135 true true 151 286 134 282 103 282 59 248 40 210 32 157 37 108 68 146 71 109 83 72 111 27 127 55 148 11 167 41 180 112 195 57 217 91 226 126 227 203 256 156 256 201 238 263 213 278 183 281
+0
+Polygon -2674135 true false 151 286 134 282 103 282 59 248 40 210 32 157 37 108 68 146 71 109 83 72 111 27 127 55 148 11 167 41 180 112 195 57 217 91 226 126 227 203 256 156 256 201 238 263 213 278 183 281
 Polygon -955883 true false 126 284 91 251 85 212 91 168 103 132 118 153 125 181 135 141 151 96 185 161 195 203 193 253 164 286
-Polygon -2674135 true true 155 284 172 268 172 243 162 224 148 201 130 233 131 260 135 282
+Polygon -2674135 true false 155 284 172 268 172 243 162 224 148 201 130 233 131 260 135 282
 
 fish
 false
@@ -412,7 +457,7 @@ true
 0
 Line -7500403 true 150 0 150 150
 
-oak tree
+oak-tree
 false
 5
 Circle -10899396 true true 118 3 94
@@ -436,7 +481,7 @@ Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
 
-pine tree
+pine-tree
 false
 5
 Rectangle -6459832 true false 120 225 180 300
