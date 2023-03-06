@@ -1,20 +1,47 @@
+globals [
+  spark-tick-freq
+]
+
+patches-own [
+  altitude
+  temperature
+]
+
 trees-own [
   burn-speed
   spark-prob
-  spread-prob
   is-burning
   is-burnt
   kind
+  ticks-since-spark
 ]
 
+sparks-own [
+  final-xcor
+  final-ycor
+]
+
+fires-own [
+  life-in-ticks
+]
+
+breed [sparks spark]
 breed [trees tree]
 breed [fires fire]
 
 to create-forest
   clear-all
-  ask patches [set pcolor 33]
-  ask patches with [random-float 100 < density] [
-    plant-tree pxcor pycor
+  set spark-tick-freq 150
+  ask patches [
+    set pcolor 33
+    set altitude calc-altitude pxcor
+    set temperature initial-temperature
+    ;set plabel round altitude
+  ]
+  repeat 2 [
+    ask patches with [random-float 100 < density] [
+      plant-tree pxcor pycor
+    ]
   ]
   reset-ticks
 end
@@ -32,48 +59,122 @@ to plant-tree [x y]
     set is-burning false
     set is-burnt false
     ifelse tree-type = "pine-tree" [
-      set spread-prob 0.05
-      set burn-speed 0.5
+      set burn-speed 0.3
+      set spark-prob 0.15
     ] [
-      set spread-prob 0.02
-      set burn-speed 0.2
+      set burn-speed 0.1
+      set spark-prob 0.05
     ]
   ]
 end
 
 to-report random-pcor [pcor th dir]
-  set pcor pcor + (random-float th) - th
   let min-pcor min-pxcor
   let max-pcor max-pxcor
   if dir = "y" [
     set min-pcor min-pycor
     set max-pcor max-pycor
   ]
+  set pcor pcor + (random-float th) - th
   set pcor median (list min-pcor pcor max-pcor)
   report pcor
 end
 
 to start-fire
-  ask n-of 10 patches [ ignite ]
+  let fire-started false
+  while [not fire-started] [
+    ask n-of 1 patches [ ignite ]
+    if count fires > 0 [ set fire-started true ]
+  ]
 end
 
 to go
-  if not any? (turtle-set trees with [is-burning]) [ stop ]
+  ; stop running if no tree is burning
+  if not any? (turtle-set trees with [is-burning] sparks) [ stop ]
   ask trees with [is-burning] [
-    if color < yellow and random-float 1 < spread-prob [
-      ask neighbors4 with [any? trees-here] [ ignite ]
+    ; spread fire if tree is yellow
+    if color < yellow [
+      ask neighbors4 with [any? trees-here] [ spread-fire ]
+    ]
+    ; create sparks
+    if color < brown [
+      ifelse (random-float 1) < spark-prob and ticks-since-spark > spark-tick-freq [
+        ask patch-here [
+          sprout-sparks 1 [
+            set shape "fire"
+            set size 0.7
+            set final-xcor (spark-final-cor pxcor "x")
+            set final-ycor (spark-final-cor pycor "y")
+            facexy final-xcor final-ycor
+          ]
+        ]
+        set ticks-since-spark 0
+      ] [ set ticks-since-spark ticks-since-spark + 1 ]
     ]
   ]
-  ask fires [ die ]
+  ; move sparks
+  ask sparks [
+    ifelse (distancexy final-xcor final-ycor) > 0.1 [
+      fd 0.1
+    ] [
+        ask patch-here [ ignite ]
+        die
+    ]
+  ]
+  ask fires [
+    set life-in-ticks life-in-ticks - 1
+    if life-in-ticks <= 0 [ die ]
+  ]
   fade-embers
   tick
+end
+
+to-report spark-final-cor [pcor dir]
+  let wind-speed east-wind-speed
+  let min-pcor min-pxcor
+  let max-pcor max-pxcor
+  if dir = "y" [
+    set wind-speed north-wind-speed
+    set min-pcor min-pycor
+    set max-pcor max-pycor
+  ]
+  set wind-speed (round wind-speed / 3)
+  set pcor pcor + wind-speed
+  set pcor median (list min-pcor pcor max-pcor)
+  report pcor
+end
+
+to spread-fire
+  let prob spread-probability
+  ;; compute the direction from you (the green tree) to the burning tree
+  let direction towards myself
+  if direction = 0 [
+    set prob prob - north-wind-speed
+  ]
+  if direction = 90 [
+    set prob prob - east-wind-speed
+  ]
+  if direction = 180 [
+    set prob prob + north-wind-speed
+  ]
+  ;; burning tree is west -> the west wind aids the spread
+  if direction = 270 [
+    set prob prob + east-wind-speed
+  ]
+  if random 100 < prob [
+    ignite
+  ]
 end
 
 to ignite
   sprout-fires 1 [
     set shape "fire"
-    set size 1.5
-    ask trees-here [
+    set size 2
+    let green-trees trees-here with [not (is-burning or is-burnt)]
+    ifelse any? green-trees [
+      set life-in-ticks 10
+    ] [ die ]
+    ask green-trees [
       set is-burning true
     ]
   ]
@@ -83,6 +184,7 @@ end
 to fade-embers
   ask trees with [is-burning] [
     set color color - burn-speed  ;; make red darker
+    ask patch-here [ set temperature temperature + 0.5 ]
     if color < red - 3.5 [ ;; are we almost at black?
       ask patch-here [
         set pcolor 2
@@ -105,15 +207,24 @@ to-report count-trees-burnt [tree-type]
     and (is-burning or is-burnt)
   ]
 end
+
+to-report calc-altitude [x]
+  let theta 30
+  let b max-pxcor - min-pxcor
+  let h b * abs (tan theta)
+  let alt (x - min-pxcor) * tan theta
+  if theta < 0 [ set alt alt + h ]
+  report alt
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 291
 42
-728
-480
+723
+475
 -1
 -1
-13.0
+12.85
 1
 10
 1
@@ -134,15 +245,15 @@ ticks
 30.0
 
 SLIDER
-32
-163
-275
-196
+29
+208
+267
+241
 density
 density
 1
 100
-100.0
+40.0
 1
 1
 %
@@ -183,10 +294,10 @@ NIL
 1
 
 MONITOR
-31
-217
-274
-262
+754
+102
+997
+147
 Number of trees left
 count trees with [not (is-burning or is-burnt)]
 17
@@ -194,10 +305,10 @@ count trees with [not (is-burning or is-burnt)]
 11
 
 PLOT
-27
-290
-273
-481
+753
+157
+999
+348
 Trees burnt
 Time
 No. trees
@@ -229,6 +340,105 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+26
+316
+268
+349
+east-wind-speed
+east-wind-speed
+-25
+25
+-25.0
+1
+1
+p/t
+HORIZONTAL
+
+SLIDER
+24
+382
+268
+415
+north-wind-speed
+north-wind-speed
+-25
+25
+25.0
+1
+1
+p/t
+HORIZONTAL
+
+SLIDER
+23
+444
+268
+477
+initial-temperature
+initial-temperature
+0
+45
+15.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+34
+167
+263
+185
+Natural variables and constants:
+10
+0.0
+1
+
+MONITOR
+753
+43
+994
+88
+Forest burned (%)
+precision (100 * ( \n1 - count trees with [not (is-burning or is-burnt)] \n/ count trees)\n) 2
+17
+1
+11
+
+SLIDER
+27
+261
+267
+294
+spread-probability
+spread-probability
+0
+100
+80.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+751
+356
+999
+476
+Sparks
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count sparks"
 
 @#$#@#$#@
 ## WHAT IS IT?
