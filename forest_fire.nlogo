@@ -1,5 +1,5 @@
 globals [
-  spark-tick-freq
+  spark-frequency
 ]
 
 patches-own [
@@ -8,8 +8,8 @@ patches-own [
 ]
 
 trees-own [
-  burn-speed
-  spark-prob
+  burning-speed
+  spark-probability
   is-burning
   is-burnt
   kind
@@ -31,15 +31,15 @@ breed [fires fire]
 
 to create-forest
   clear-all
-  set spark-tick-freq 150
+  set spark-frequency 150
   ask patches [
     set pcolor 33
     set altitude calc-altitude pxcor
     set temperature initial-temperature
-    ;set plabel round altitude
+    set plabel round altitude
   ]
   repeat 2 [
-    ask patches with [random-float 100 < density] [
+    ask patches with [random-float 100 < forest-density] [
       plant-tree pxcor pycor
     ]
   ]
@@ -59,11 +59,11 @@ to plant-tree [x y]
     set is-burning false
     set is-burnt false
     ifelse tree-type = "pine-tree" [
-      set burn-speed 0.3
-      set spark-prob 0.15
+      set burning-speed 0.3
+      set spark-probability 0.15
     ] [
-      set burn-speed 0.1
-      set spark-prob 0.05
+      set burning-speed 0.1
+      set spark-probability 0.05
     ]
   ]
 end
@@ -92,13 +92,15 @@ to go
   ; stop running if no tree is burning
   if not any? (turtle-set trees with [is-burning] sparks) [ stop ]
   ask trees with [is-burning] [
+    let fire-altitude [altitude] of patch-here
     ; spread fire if tree is yellow
     if color < yellow [
-      ask neighbors4 with [any? trees-here] [ spread-fire ]
+      ask neighbors with [any? trees-here] [ spread-fire fire-altitude ]
     ]
     ; create sparks
     if color < brown [
-      ifelse (random-float 1) < spark-prob and ticks-since-spark > spark-tick-freq [
+      ifelse random-float 1 < spark-probability
+      and ticks-since-spark > spark-frequency [
         ask patch-here [
           sprout-sparks 1 [
             set shape "fire"
@@ -121,10 +123,12 @@ to go
         die
     ]
   ]
+  ; 'kill' fire turtles, to not block the view
   ask fires [
     set life-in-ticks life-in-ticks - 1
     if life-in-ticks <= 0 [ die ]
   ]
+  ; burn trees
   fade-embers
   tick
 end
@@ -144,24 +148,35 @@ to-report spark-final-cor [pcor dir]
   report pcor
 end
 
-to spread-fire
-  let prob spread-probability
-  ;; compute the direction from you (the green tree) to the burning tree
+to spread-fire [fire-altitude]
+  let probability spread-probability
+  ; compute the direction from you (the green tree) to the burning tree
   let direction towards myself
   if direction = 0 [
-    set prob prob - north-wind-speed
+    set probability probability - north-wind-speed
   ]
   if direction = 90 [
-    set prob prob - east-wind-speed
+    set probability probability - east-wind-speed
   ]
   if direction = 180 [
-    set prob prob + north-wind-speed
+    set probability probability + north-wind-speed
   ]
-  ;; burning tree is west -> the west wind aids the spread
+  ; burning tree is west -> the west wind aids the spread
   if direction = 270 [
-    set prob prob + east-wind-speed
+    set probability probability + east-wind-speed
   ]
-  if random 100 < prob [
+  ; increase probability according to temperature
+  let mean-temperature (mean [temperature] of neighbors)
+  set probability probability + (ln mean-temperature) ^ 2
+  ; keep probability within boundaries
+  set probability median (list 0 probability 100)
+  ; decrease probability if fire is at lower altitude
+  let altitude-diff fire-altitude - altitude
+  if altitude-diff < 0 [
+    set probability probability * 0.1
+  ]
+  ; ignite if probable
+  if random 100 < probability [
     ignite
   ]
 end
@@ -183,8 +198,8 @@ end
 ;; achieve fading color effect for the fire as it burns
 to fade-embers
   ask trees with [is-burning] [
-    set color color - burn-speed  ;; make red darker
-    ask patch-here [ set temperature temperature + 0.5 ]
+    set color color - burning-speed  ;; make red darker
+    ask patch-here [ set temperature temperature + 1 ]
     if color < red - 3.5 [ ;; are we almost at black?
       ask patch-here [
         set pcolor 2
@@ -215,6 +230,14 @@ to-report calc-altitude [x]
   let alt (x - min-pxcor) * tan theta
   if theta < 0 [ set alt alt + h ]
   report alt
+end
+
+to-report calc-max-temperature
+  let max-temperature 0
+  ask patches with-max [temperature] [
+    set max-temperature temperature
+  ]
+  report max-temperature
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -249,8 +272,8 @@ SLIDER
 208
 267
 241
-density
-density
+forest-density
+forest-density
 1
 100
 40.0
@@ -350,7 +373,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
--25.0
+-5.0
 1
 1
 p/t
@@ -365,7 +388,7 @@ north-wind-speed
 north-wind-speed
 -25
 25
-25.0
+5.0
 1
 1
 p/t
@@ -416,7 +439,7 @@ spread-probability
 spread-probability
 0
 100
-80.0
+30.0
 1
 1
 NIL
@@ -428,8 +451,8 @@ PLOT
 999
 476
 Sparks
-NIL
-NIL
+Time
+No. sparks
 0.0
 10.0
 0.0
@@ -439,6 +462,35 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot count sparks"
+
+MONITOR
+1013
+43
+1215
+88
+Max temperature (ºC)
+calc-max-temperature
+17
+1
+11
+
+PLOT
+1014
+100
+1214
+250
+Mean temperature
+Time
+Temperature
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [temperature] of patches"
 
 @#$#@#$#@
 ## WHAT IS IT?
