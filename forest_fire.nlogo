@@ -167,6 +167,7 @@ to spread-fire [fire-altitude]
   ]
   ; increase probability according to temperature
   let mean-temperature (mean [temperature] of neighbors)
+  if mean-temperature < 1 [ set mean-temperature 1 ]
   set probability probability + (ln mean-temperature) ^ 2
   ; keep probability within boundaries
   set probability median (list 0 probability 100)
@@ -200,6 +201,7 @@ to fade-embers
   ask trees with [is-burning] [
     set color color - burning-speed  ;; make red darker
     ask patch-here [ set temperature temperature + 1 ]
+    ask neighbors [ set temperature temperature + 0.25 ]
     if color < red - 3.5 [ ;; are we almost at black?
       ask patch-here [
         set pcolor 2
@@ -276,7 +278,7 @@ forest-density
 forest-density
 1
 100
-40.0
+60.0
 1
 1
 %
@@ -373,7 +375,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
-16.0
+25.0
 1
 1
 p/t
@@ -388,7 +390,7 @@ north-wind-speed
 north-wind-speed
 -25
 25
-5.0
+25.0
 1
 1
 p/t
@@ -403,7 +405,7 @@ initial-temperature
 initial-temperature
 0
 45
-15.0
+20.0
 1
 1
 NIL
@@ -439,7 +441,7 @@ spread-probability
 spread-probability
 0
 100
-30.0
+40.0
 1
 1
 NIL
