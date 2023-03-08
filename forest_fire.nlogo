@@ -36,7 +36,7 @@ to create-forest
     set pcolor 33
     set altitude calc-altitude pxcor
     set temperature initial-temperature
-    set plabel round altitude
+    ;set plabel round altitude
   ]
   repeat 2 [
     ask patches with [random-float 100 < forest-density] [
@@ -317,21 +317,21 @@ NIL
 1
 
 MONITOR
-754
-102
-997
-147
-Number of trees left
+738
+100
+981
+145
+Number of trees remaining
 count trees with [not (is-burning or is-burnt)]
 17
 1
 11
 
 PLOT
-753
-157
-999
-348
+737
+155
+983
+346
 Trees burnt
 Time
 No. trees
@@ -373,7 +373,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
--5.0
+16.0
 1
 1
 p/t
@@ -420,10 +420,10 @@ Natural variables and constants:
 1
 
 MONITOR
-753
-43
-994
-88
+737
+41
+978
+86
 Forest burned (%)
 precision (100 * ( \n1 - count trees with [not (is-burning or is-burnt)] \n/ count trees)\n) 2
 17
@@ -446,10 +446,10 @@ NIL
 HORIZONTAL
 
 PLOT
-751
-356
-999
-476
+735
+354
+983
+474
 Sparks
 Time
 No. sparks
@@ -464,10 +464,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count sparks"
 
 MONITOR
-1013
-43
-1215
-88
+996
+38
+1209
+83
 Max temperature (ºC)
 calc-max-temperature
 17
@@ -475,10 +475,10 @@ calc-max-temperature
 11
 
 PLOT
-1014
-100
-1214
-250
+996
+156
+1208
+345
 Mean temperature
 Time
 Temperature
@@ -491,6 +491,17 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean [temperature] of patches"
+
+MONITOR
+996
+97
+1208
+142
+Mean temperature (ºC)
+precision (mean [temperature] of patches) 2
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
