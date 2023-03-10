@@ -1,29 +1,10 @@
-globals [
-  spark-frequency
-]
+extensions [table]
+globals [spark-frequency]
 
-patches-own [
-  altitude
-  temperature
-]
-
-trees-own [
-  burning-speed
-  spark-probability
-  is-burning
-  is-burnt
-  kind
-  ticks-since-spark
-]
-
-sparks-own [
-  final-xcor
-  final-ycor
-]
-
-fires-own [
-  life-in-ticks
-]
+patches-own [altitude temperature]
+trees-own [burning-speed spark-probability is-burning is-burnt kind ticks-since-spark]
+sparks-own [final-xcor final-ycor]
+fires-own [life-in-ticks]
 
 breed [sparks spark]
 breed [trees tree]
@@ -38,6 +19,7 @@ to create-forest
     set temperature initial-temperature
     ;set plabel round altitude
   ]
+  random-seed 113
   repeat 2 [
     ask patches with [random-float 100 < forest-density] [
       plant-tree pxcor pycor
@@ -86,6 +68,7 @@ to start-fire
     ask n-of 1 patches [ ignite ]
     if count fires > 0 [ set fire-started true ]
   ]
+  random-seed new-seed
 end
 
 to go
@@ -167,14 +150,13 @@ to spread-fire [fire-altitude]
   ]
   ; increase probability according to temperature
   let mean-temperature (mean [temperature] of neighbors)
-  if mean-temperature < 1 [ set mean-temperature 1 ]
-  set probability probability + (ln mean-temperature) ^ 2
+  set probability probability + (ln (mean-temperature + 1)) ^ 2
   ; keep probability within boundaries
   set probability median (list 0 probability 100)
   ; decrease probability if fire is at lower altitude
   let altitude-diff fire-altitude - altitude
-  if altitude-diff < 0 [
-    set probability probability * 0.1
+    if altitude-diff > 0 [
+    set probability probability * (1 + abs (tan inclination / 3))
   ]
   ; ignite if probable
   if random 100 < probability [
@@ -226,11 +208,10 @@ to-report count-trees-burnt [tree-type]
 end
 
 to-report calc-altitude [x]
-  let theta 30
   let b max-pxcor - min-pxcor
-  let h b * abs (tan theta)
-  let alt (x - min-pxcor) * tan theta
-  if theta < 0 [ set alt alt + h ]
+  let h b * abs (tan inclination)
+  let alt (x - min-pxcor) * tan inclination
+  if inclination < 0 [ set alt alt + h ]
   report alt
 end
 
@@ -271,14 +252,14 @@ ticks
 
 SLIDER
 29
-208
+158
 267
-241
+191
 forest-density
 forest-density
 1
 100
-60.0
+25.0
 1
 1
 %
@@ -375,7 +356,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
-25.0
+10.0
 1
 1
 p/t
@@ -390,7 +371,7 @@ north-wind-speed
 north-wind-speed
 -25
 25
-25.0
+-15.0
 1
 1
 p/t
@@ -405,21 +386,11 @@ initial-temperature
 initial-temperature
 0
 45
-20.0
+15.0
 1
 1
 NIL
 HORIZONTAL
-
-TEXTBOX
-34
-167
-263
-185
-Natural variables and constants:
-10
-0.0
-1
 
 MONITOR
 737
@@ -441,10 +412,10 @@ spread-probability
 spread-probability
 0
 100
-40.0
+20.0
 1
 1
-NIL
+%
 HORIZONTAL
 
 PLOT
@@ -504,6 +475,21 @@ precision (mean [temperature] of patches) 2
 17
 1
 11
+
+SLIDER
+31
+210
+267
+243
+inclination
+inclination
+-60
+60
+30.0
+1
+1
+º
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
