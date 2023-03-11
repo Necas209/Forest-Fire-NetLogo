@@ -1,5 +1,5 @@
-extensions [table]
-globals [spark-frequency]
+extensions [csv]
+globals [spark-frequency iterations]
 
 patches-own [altitude temperature]
 trees-own [burning-speed spark-probability is-burning is-burnt kind ticks-since-spark]
@@ -12,6 +12,18 @@ breed [fires fire]
 
 to create-forest
   clear-all
+  ; define csv header
+  set iterations [[
+    "tick"
+    "forest_burnt"
+    "forest_burnt_perc"
+    "oak_trees_burnt"
+    "pine_trees_burnt"
+    "no_sparks"
+    "mean_temperature"
+    "max_temperature"
+  ]]
+  ; setup patches
   set spark-frequency 150
   ask patches [
     set pcolor 33
@@ -68,12 +80,18 @@ to start-fire
     ask n-of 1 patches [ ignite ]
     if count fires > 0 [ set fire-started true ]
   ]
+  save-config
   random-seed new-seed
 end
 
 to go
+  ; save iteration
+  save-iteration
   ; stop running if no tree is burning
-  if not any? (turtle-set trees with [is-burning] sparks) [ stop ]
+  if not any? (turtle-set trees with [is-burning] sparks) [
+    save-iterations
+    stop
+  ]
   ask trees with [is-burning] [
     let fire-altitude [altitude] of patch-here
     ; spread fire if tree is yellow
@@ -116,6 +134,44 @@ to go
   tick
 end
 
+to save-config
+  let config-path user-new-file
+  while [config-path = false] [
+    set config-path user-new-file
+  ]
+  if file-exists? config-path [ stop ]
+  file-open config-path
+  file-print (word "forest-density: " forest-density)
+  file-print (word "inclination: " inclination)
+  file-print (word "spread-probability: " spread-probability)
+  file-print (word "east-wind-speed: " east-wind-speed)
+  file-print (word "north-wind-speed: " north-wind-speed)
+  file-print (word "initial-temperature: " initial-temperature)
+  file-print (word "no-trees: " count trees)
+  file-print (word "no-oak-trees: " count trees with [kind = "oak-tree"])
+  file-print (word "no-pine-trees: " count trees with [kind = "pine-tree"])
+  file-close
+end
+
+to save-iteration
+  let iteration (list
+    ticks
+    count-trees-burnt ""
+    (count-trees-burnt "" / count trees)
+    count-trees-burnt "oak-tree"
+    count-trees-burnt "pine-tree"
+    count sparks
+    mean-temperature
+    max-temperature
+  )
+  set iterations (insert-item (length iterations) iterations iteration)
+end
+
+to save-iterations
+  let csv-path user-new-file
+  csv:to-file csv-path iterations
+end
+
 to-report spark-final-cor [pcor dir]
   let wind-speed east-wind-speed
   let min-pcor min-pxcor
@@ -149,8 +205,8 @@ to spread-fire [fire-altitude]
     set probability probability + east-wind-speed
   ]
   ; increase probability according to temperature
-  let mean-temperature (mean [temperature] of neighbors)
-  set probability probability + (ln (mean-temperature + 1)) ^ 2
+  let mean-temp (mean [temperature] of neighbors)
+  set probability probability + (ln (mean-temp + 1)) ^ 2
   ; keep probability within boundaries
   set probability median (list 0 probability 100)
   ; decrease probability if fire is at lower altitude
@@ -215,12 +271,16 @@ to-report calc-altitude [x]
   report alt
 end
 
-to-report calc-max-temperature
-  let max-temperature 0
+to-report mean-temperature
+  report mean [temperature] of patches
+end
+
+to-report max-temperature
+  let max-temp 0
   ask patches with-max [temperature] [
-    set max-temperature temperature
+    set max-temp temperature
   ]
-  report max-temperature
+  report max-temp
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -259,7 +319,7 @@ forest-density
 forest-density
 1
 100
-25.0
+50.0
 1
 1
 %
@@ -371,7 +431,7 @@ north-wind-speed
 north-wind-speed
 -25
 25
--15.0
+10.0
 1
 1
 p/t
@@ -386,7 +446,7 @@ initial-temperature
 initial-temperature
 0
 45
-15.0
+20.0
 1
 1
 NIL
@@ -398,7 +458,7 @@ MONITOR
 978
 86
 Forest burned (%)
-precision (100 * ( \n1 - count trees with [not (is-burning or is-burnt)] \n/ count trees)\n) 2
+precision (100 * (\ncount trees with [is-burnt] / count trees)\n) 2
 17
 1
 11
@@ -412,7 +472,7 @@ spread-probability
 spread-probability
 0
 100
-20.0
+40.0
 1
 1
 %
@@ -442,7 +502,7 @@ MONITOR
 1209
 83
 Max temperature (ºC)
-calc-max-temperature
+max-temperature
 17
 1
 11
@@ -471,7 +531,7 @@ MONITOR
 1208
 142
 Mean temperature (ºC)
-precision (mean [temperature] of patches) 2
+precision (mean-temperature) 2
 17
 1
 11
