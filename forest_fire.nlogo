@@ -31,7 +31,7 @@ to create-forest
     set temperature initial-temperature
     ;set plabel round altitude
   ]
-  random-seed 113
+  random-seed seed
   repeat 2 [
     ask patches with [random-float 100 < forest-density] [
       plant-tree pxcor pycor
@@ -135,10 +135,10 @@ to go
 end
 
 to save-config
-  let config-path user-new-file
-  while [config-path = false] [
-    set config-path user-new-file
+  if current-iteration = 0 [
+    set-current-directory user-directory
   ]
+  let config-path "config.yaml"
   if file-exists? config-path [ stop ]
   file-open config-path
   file-print (word "forest-density: " forest-density)
@@ -168,8 +168,14 @@ to save-iteration
 end
 
 to save-iterations
-  let csv-path user-new-file
+  let csv-path (word "run" current-iteration ".csv")
   csv:to-file csv-path iterations
+  ; reset iteration counter
+  ifelse current-iteration = 10 [
+    set current-iteration 0
+  ] [
+    set current-iteration current-iteration + 1
+  ]
 end
 
 to-report spark-final-cor [pcor dir]
@@ -181,7 +187,7 @@ to-report spark-final-cor [pcor dir]
     set min-pcor min-pycor
     set max-pcor max-pycor
   ]
-  set wind-speed (round wind-speed / 3)
+  set wind-speed (round wind-speed / 2)
   set pcor pcor + wind-speed
   set pcor median (list min-pcor pcor max-pcor)
   report pcor
@@ -319,7 +325,7 @@ forest-density
 forest-density
 1
 100
-50.0
+25.0
 1
 1
 %
@@ -328,7 +334,7 @@ HORIZONTAL
 BUTTON
 30
 41
-270
+150
 74
 Create Forest
 create-forest
@@ -343,10 +349,10 @@ NIL
 1
 
 BUTTON
-30
-106
-150
-139
+167
+43
+271
+76
 Start Fire
 start-fire
 NIL
@@ -416,7 +422,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
-10.0
+-15.0
 1
 1
 p/t
@@ -545,11 +551,58 @@ inclination
 inclination
 -60
 60
-30.0
+-30.0
 1
 1
 º
 HORIZONTAL
+
+SLIDER
+1017
+365
+1189
+398
+current-iteration
+current-iteration
+0
+10
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1018
+419
+1190
+452
+seed
+seed
+0
+500
+424.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+29
+107
+149
+140
+Create Scenario
+create-forest\nstart-fire
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
