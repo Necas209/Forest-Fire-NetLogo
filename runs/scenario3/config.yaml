@@ -1,8 +1,8 @@
 forest-density: 25
 inclination: 30
 spread-probability: 40
-east-wind-speed: 15
-north-wind-speed: -10
+east-wind-speed: -15
+north-wind-speed: 10
 initial-temperature: 20
 no-trees: 543
 no-oak-trees: 271
