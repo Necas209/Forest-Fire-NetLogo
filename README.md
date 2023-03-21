@@ -29,7 +29,8 @@ The model has the following parameters:
 * `spark-frequency` - The frequency of the sparks in ticks.
 * `spread-probability` - The probability of a tree being ignited by the fire.
 * `seed` - The seed for the random number generator.
-* `iteration` - The number of the current iteration.
+* `current-run` - The number of the current run.
+* `iterations` - list of entries containing a snapshot of the model at the end of each iteration.
 
 ## Model Variables
 

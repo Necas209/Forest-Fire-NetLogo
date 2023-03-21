@@ -2,7 +2,11 @@ extensions [csv]
 globals [spark-frequency iterations]
 
 patches-own [altitude temperature]
-trees-own [burning-speed spark-probability is-burning is-burnt kind ticks-since-spark]
+trees-own [
+  burning-speed spark-probability
+  is-burning is-burnt
+  kind ticks-since-spark
+]
 sparks-own [final-xcor final-ycor]
 fires-own [life-in-ticks]
 
@@ -29,7 +33,6 @@ to create-forest
     set pcolor 33
     set altitude calc-altitude pxcor
     set temperature initial-temperature
-    ;set plabel round altitude
   ]
   random-seed seed
   repeat 2 [
@@ -135,7 +138,7 @@ to go
 end
 
 to save-config
-  if current-iteration = 0 [
+  if current-run = 0 [
     set-current-directory user-directory
   ]
   let config-path "config.yaml"
@@ -168,13 +171,13 @@ to save-iteration
 end
 
 to save-iterations
-  let csv-path (word "run" current-iteration ".csv")
+  let csv-path (word "run" current-run ".csv")
   csv:to-file csv-path iterations
   ; reset iteration counter
-  ifelse current-iteration = 10 [
-    set current-iteration 0
+  ifelse current-run = 10 [
+    set current-run 0
   ] [
-    set current-iteration current-iteration + 1
+    set current-run current-run + 1
   ]
 end
 
@@ -562,8 +565,8 @@ SLIDER
 365
 1189
 398
-current-iteration
-current-iteration
+current-run
+current-run
 0
 10
 0.0
