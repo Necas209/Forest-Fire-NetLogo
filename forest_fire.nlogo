@@ -34,11 +34,9 @@ to create-forest
     set altitude calc-altitude pxcor
     set temperature initial-temperature
   ]
-  random-seed seed
-  repeat 2 [
-    ask patches with [random-float 100 < forest-density] [
-      plant-tree pxcor pycor
-    ]
+  random-seed forest-seed
+  ask patches with [random-float 100 < forest-density] [
+    plant-tree pxcor pycor
   ]
   reset-ticks
 end
@@ -328,7 +326,7 @@ forest-density
 forest-density
 1
 100
-25.0
+40.0
 1
 1
 %
@@ -425,7 +423,7 @@ east-wind-speed
 east-wind-speed
 -25
 25
--15.0
+15.0
 1
 1
 p/t
@@ -440,7 +438,7 @@ north-wind-speed
 north-wind-speed
 -25
 25
-10.0
+-10.0
 1
 1
 p/t
@@ -554,7 +552,7 @@ inclination
 inclination
 -60
 60
--30.0
+30.0
 1
 1
 º
@@ -580,11 +578,11 @@ SLIDER
 419
 1190
 452
-seed
-seed
+forest-seed
+forest-seed
 0
 500
-424.0
+65.0
 1
 1
 NIL
