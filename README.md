@@ -17,6 +17,10 @@ The model is based on the following assumptions:
 * The fire spreads to the adjacent cells, with a probability of being ignited.
 * The wind can blow the fire in a certain direction, with a certain inclination.
 
+The model provides a graphical interface, where the user can see the forest, the fire, and the wind. The user can also change the parameters of the model, and run the simulation. See the following image for a graphical representation of the model.
+
+![Forest Fire Model](imgs/environment.png)
+
 ## Model Parameters
 
 The model has the following parameters:
