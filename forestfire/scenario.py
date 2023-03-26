@@ -30,14 +30,11 @@ class Scenario:
         """
         config_path = path / "config.yaml"
         with open(config_path, "r") as f:
-            config = yaml.safe_load(f)
-        config["runs"] = []
-        for run_csv_path in path.glob("run*.csv"):
-            run = Run.from_csv(run_csv_path)
-            config["runs"].append(run)
+            config: dict[str, int] = yaml.safe_load(f)
+        runs = [Run.from_csv(path / f"run{i}.csv") for i in range(11)]
         # replace keys with snake case
         config = {k.replace("-", "_"): v for k, v in config.items()}
-        return cls(**config)
+        return cls(**config, runs=runs)
 
     def __post_init__(self) -> None:
         self.runs.sort(key=lambda run: run.tick[-1])
