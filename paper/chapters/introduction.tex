@@ -1,0 +1,33 @@
+No âmbito da Unidade Curricular de Computação Natural, foi solicitado um trabalho prático que consiste no desenvolvimento de um sistema computacional com agentes racionais usando a ferramenta NetLogo, com o propósito de simular a propagação de um incêndio florestal com base em diferentes fatores ambientais.
+
+\section{Agentes Racionais}\label{sec:rational_agents}
+
+Segundo Russel e Norvig \cite{Russel2010IntelligentAgents}, um agente é qualquer coisa que perceciona o seu ambiente através de sensores e atua sobre esse ambiente através de atuadores.
+
+Um agente racional é aquele que toma a decisão correta, sendo necessário definir o contexto da decisão, o que considera certo e o que considera errado. Quando colocado num ambiente, o agente gera uma sequência de ações de acordo com estímulos (ou perceções). \cite{Russel2010IntelligentAgents}
+
+Esta desencadeia uma sequência de estados no ambiente que, quando favorável, determina o sucesso do agente, que por sua vez é avaliado de acordo com uma medida de performance.
+
+A definição de racionalidade de um agente tem por base:
+\begin{itemize}
+    \item A medida de desempenho que define o critério de sucesso;
+    \item O conhecimento prévio do agente sobre o ambiente;
+    \item As ações que o agente pode executar;
+    \item A sequência de perceções do agente até à data.
+\end{itemize}
+
+\section{Incêndios Florestais}\label{sec:forest_fires}
+
+Nos sistemas de simulação de incêndios florestais, os agentes racionais podem desempenhar um papel crucial na prevenção e controlo destes desastres. Podem ser programados para recolher informações sobre as condições ambientais, como temperatura, humidade e direção do vento, e tomar decisões sobre a melhor estratégia de combate ao fogo. 
+
+Além disso, estes agentes podem ser utilizados para simular o comportamento do fogo e a propagação do incêndio, permitindo que os gestores do sistema tomem decisões informadas sobre como agir.
+
+Em Viegas \cite{Viegas2011OverviewResearch}, o autor apresenta uma visão geral sobre a propagação de incêndios florestais e destaca a importância do estudo e gestão desses desastres devido à sua crescente incidência em anos recentes. O autor discute os processos físicos envolvidos na propagação do fogo, especialmente em condições extremas, com ênfase na segurança e proteção de vidas humanas durante a propagação do incêndio.
+
+Em Papadopoulos, et al. \cite{Papadopoulos2011ASimulators}, os autores reforçam a importância da previsão da propagação de incêndios florestais e apresentam uma avaliação comparativa de diferentes modelos de simulação existentes na literatura, concluindo que o FARSITE é o mais indicado para esse tipo de previsão. Já em Singh et al. \cite{Singh2017ForestGIS}, os autores apresentam um estudo realizado na Floresta Taradevi, em Himachal Pradesh, Índia, no qual dados de deteção remota e SIG foram utilizados gerar o input necessário para a modelação de incêndios florestais recorrendo ao FARSITE.
+
+Diferentes ferramentas e metodologias têm vindo a ser desenvolvidas para simplificar e melhorar estes processos, desde métodos inovadores de autómatos celulares (CA) integrados com Máquinas de Aprendizagem Extrema (ELM) \cite{Zheng2017ForestMachine}, a ferramentas Web interativas como a FLogA (Fire Logic Animation), que permitem aos seus utilizadores simular incêndios em florestas reais com base em diferentes condições climáticas \cite{Bogdos2013ACapabilities}, e até mesmo ambientes de simulação integrados \cite{Finney2011ASimulation}, por exemplo, o DEVS-FIRE \cite{Ntaimo2008DEVS-FIRE:Containment}, baseado na especificação de sistemas de eventos discretos (DEVS) e na utilização de modelos de espaço celular para simular a propagação do fogo e modelos de agentes para simular a contenção do fogo.
+
+Os modelos de simulação de incêndios florestais estão a ser amplamente utilizados por especialistas em incêndios e combustíveis nos EUA para apoiar decisões táticas e estratégicas relacionadas com a mitigação do risco de incêndios florestais. \cite{Ager2009ApplicationAnalysis}
+
+A aplicação desses modelos é o resultado do desenvolvimento de um algoritmo de propagação de incêndios de tempo mínimo (MTT), desenvolvido por Finney \cite{Ager2009ApplicationAnalysis}, que torna computacionalmente viável simular milhares de incêndios e gerar mapas de probabilidade e intensidade de queima em grandes áreas. A pesquisa de Finney, et al. \cite{Ager2009ApplicationAnalysis, Finney2011AStates}, demonstra uma abordagem prática para o uso de simulações de incêndios florestais em escalas muito amplas para fins de planeamento operacional e, possivelmente, pesquisa ecológica.

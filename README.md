@@ -19,7 +19,7 @@ The model is based on the following assumptions:
 
 The model provides a graphical interface, where the user can see the forest, the fire, and the wind. The user can also change the parameters of the model, and run the simulation. See the following image for a graphical representation of the model.
 
-![Forest Fire Model](imgs/environment.png)
+![Forest Fire Model](paper/images/environment.png)
 
 ## Model Parameters
 
