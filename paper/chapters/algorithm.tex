@@ -1,0 +1,151 @@
+O objetivo principal deste algoritmo é fornecer uma ferramenta eficiente para modelar e prever o comportamento dos incêndios florestais, permitindo a avaliação dos efeitos de diferentes cenários na propagação do fogo.
+A simulação baseada em agentes é uma abordagem que considera a interação entre os elementos do ambiente e os agentes que nele atuam, permitindo a modelação de comportamentos complexos e dinâmicos.
+
+O algoritmo descrito aqui considera fatores como topografia, vento, temperatura, a estrutura da comunidade vegetal e outros elementos relevantes para o comportamento do fogo.
+A seguir, serão apresentados detalhes do funcionamento do algoritmo e como ele foi implementado para atender aos objetivos.
+
+\SetKwFunction{calcAltitude}{calcAltitude}
+\SetKwFunction{random}{random}
+\SetKwFunction{plantTree}{plantTree}
+
+\begin{algorithm}
+    \caption{Criação da floresta (\texttt{createForest})}\label{alg:create_forest}
+    $sparkFrequency \gets 150$\;
+    $seed \gets forestSeed$\;
+    \For{$patch \in patches$}{
+        $altitude \gets \calcAltitude{pxcor}$\;
+        $temperature \gets initialTemperature$\;
+        \If{\random{$0, 100$} $<$ forestDensity}{
+            \plantTree{pxcor, pycor}\;
+        }
+    }
+\end{algorithm}
+
+Em Alg.~\ref{alg:create_forest}, encontra-se detalhado o processo de população da floresta.
+Este começa por definir a frequência, em ticks, de criação de fagulhas, seguido da atribuição da \textit{seed} responsável pela distribuição de árvores, bem como pela criação do fogo.
+A cada célula é atribuída uma altitude dependente da sua posição, bem como uma temperatura inicial escolhida pelo utilizador.
+Também, segundo a densidade da floresta, são plantadas árvores nos diferentes patches.
+
+\SetKwFunction{ignite}{ignite}
+\SetKwFunction{saveConfig}{saveConfig}
+\SetKwFunction{anyTreesBurning}{anyTreesBurning}
+\SetKwFunction{saveIteration}{saveIteration}
+\SetKwFunction{saveIterations}{saveIterations}
+\SetKwFunction{fire}{fire}
+
+\begin{algorithm}
+    \caption{Criação do fogo inicial (\texttt{startFire})}\label{alg:start_fire}
+    $patch \gets \random(patches)$\;
+    \ignite{patch}\;
+    \saveConfig{}\;
+    $seed \gets \random{seeds}$\;
+    \While{\anyTreesBurning{}}{
+        \saveIteration{}\;
+        \fire{}\;
+    }
+    \saveIterations{}\;
+\end{algorithm}
+
+Com a floresta plantada, resta criar o fogo inicial, tal como se pode ver em Alg.~\ref{alg:start_fire}.
+Começa-se por escolher aleatoriamente um ‘patch’, no qual é criada a primeira chama.
+A seguir, são salvas as configurações do cenário em ficheiro YAML, e reiniciada a semente.
+O modelo entra num ciclo condicional, responsável por salvar o estado do modelo em cada iteração e de propagar o incêndio.
+Após o fim do ciclo, são guardados em ficheiro CSV os resultados das iterações.
+
+\SetKwFunction{spreadFire}{spreadFire}
+\SetKwFunction{canSpark}{canSpark}
+\SetKwFunction{createSpark}{createSpark}
+\SetKwFunction{forward}{forward}
+\SetKwFunction{fadeEmbers}{fadeEmbers}
+\SetKwFunction{tick}{tick}
+\SetKwFunction{create}{create}
+
+\begin{algorithm}
+    \caption{Evolução do incêndio (\texttt{fire})}\label{alg:fire}
+    \EndFor
+    \For{$tree \in trees$}{
+        \If{isBurning}{
+            \If{$color < ``yellow"$}{
+                \spreadFire{neighbors, altitude}\;
+            }
+            \If{$color < ``brown"$}{
+                \If{$\random{0, 1} < sparkProbability$ \textbf{and} $ticksSinceSpark > sparkFrequency$}{
+                    \create{spark}\;
+                    $ticksSinceSpark \gets 0$\;
+                }
+                \Else{
+                    $ticksSinceSpark \gets ticksSinceSpark + 1$\;
+                }
+            }
+        }
+    }
+    \For{$spark \in sparks$}{
+        \If{$position \neq finalPosition$}{
+            \forward{$0.1$}\;
+        }
+        \Else{
+            \ignite{patch-here}\;
+        }
+    }
+    \fadeEmbers{}\;
+    \tick{}\;
+\end{algorithm}
+
+O Algoritmo~\ref{alg:fire} representa o algoritmo responsável pela evolução do incêndio ao longo da execução do modelo.
+Em cada tick, as árvores a arder espalham o fogo para as células vizinhas e geram fagulhas, segundo uma certa probabilidade, consoante a cor das suas folhas - esta representa o estado da árvore, mais ou menos queimada.
+Já as fagulhas movem-se em direção à sua posição final, na qual incendeiam as árvores presentes.
+Por fim, o estado de queima das árvores é atualizado com o procedimento \texttt{fadeEmbers}, responsável por alterar as propriedades da árvore, em particular a sua cor.
+
+\begin{algorithm}
+    \caption{Ignição do fogo (\texttt{ignite})}\label{alg:ignite}
+    \create{fire}\;
+    \For{$tree \in trees{-}here$}{
+        \If{\textbf{not} ($isBurning$ \textbf{and} $isBurnt$)}{
+            $isBurning \gets true$\;
+        }
+    }
+\end{algorithm}
+
+Para incendiar as árvores, recorremos ao procedimento \texttt{ignite}, definido em Alg.~\ref{alg:ignite}.
+Este algoritmo é responsável por criar um agente \textit{fire} na célula atual, bem como de incendiar quaisquer árvores que não estejam a arder na mesma.
+
+\SetKwFunction{towards}{towards}
+\SetKwFunction{meanTemperature}{meanTemperature}
+
+\begin{algorithm}
+    \caption{Propagação do fogo (\texttt{spreadFire})}\label{alg:spread_fire}
+    \KwIn{fireAltitude}
+    $probability \gets spreadProbability$\;
+    $direction \gets \towards{this}$\;
+    \Switch{direction}{
+        \Case{\ang{0}}{
+            $probability \gets probability - northWindSpeed$\;
+        }
+        \Case{\ang{90}}{
+            $probability \gets probability - eastWindSpeed$\;
+        }
+        \Case{\ang{180}}{
+            $probability \gets probability + northWindSpeed$\;
+        }
+        \Case{\ang{270}}{
+            $probability \gets probability + eastWindSpeed$\;
+        }
+    }
+    $meanTemp \gets \meanTemperature{neighbors}$\;
+    $probability \gets probability + \ln^2{(meanTemp + 1)}$\;
+    \If{$fireAltitude > altitude$}{
+        $probability \gets probability\cdot\left(1+|\tan\left(\frac{inclination}{3}\right)|\right)$\;
+    }
+    \If{\random{$0, 100$} $<$ probability}{
+        \ignite{patch-here}\;
+    }
+\end{algorithm}
+
+Por fim, temos o algoritmo responsável pela propagação do fogo em si, retratado em Alg.~\ref{alg:spread_fire}.
+Começa-se por determinar a direção do fogo em relação à célula atual, e por inicializar a probabilidade de propagação com o valor definido pelo utilizador no início do programa.
+A seguir, consoante a direção do vento, ajusta-se adequadamente esta, tal que o mesmo possa contribuir, positiva ou negativamente para essa propagação.
+Segue-se o cálculo da temperatura média nas células vizinhas, sendo igualmente usada para modificar novamente a propriedade (quanto mais quente estiver o ambiente em redor, melhor se propaga o fogo).
+Por fim, e porque o fogo tende a subir, quando enfrenta terrenos íngremes, a probabilidade é alterada uma última vez para refletir a inclinação do terreno.
+Termina-se por incendiar a célula presente, segundo o valor final da probabilidade de propagação.
+
+Todos os detalhes da implementação do modelo de simulação em NetLogo, bem como do módulo desenvolvido em Python para o processamento dos resultados, podem ser consultados no Apêndice~\ref{ch:appendix}.
