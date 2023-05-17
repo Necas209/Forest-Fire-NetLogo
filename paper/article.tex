@@ -3,9 +3,7 @@
 \usepackage[ruled]{algorithm2e}
 \usepackage{cite}
 \usepackage{comment}
-%\usepackage{enumitem}
 \usepackage{graphicx}
-%\usepackage{subcaption}
 \usepackage{parskip}
 \usepackage{minted}
 \usepackage{titlesec}
@@ -14,6 +12,8 @@
 \usepackage[hidelinks,pdfusetitle]{hyperref}
 \usepackage{xcolor}
 \usepackage{siunitx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
 \hypersetup{
     breaklinks=true,
@@ -24,81 +24,101 @@
 
 \providecommand{\keywords}[1]
 {
-  \small	
-  \textbf{\textit{Palavras-chave --}} #1
+    \small
+    \textbf{\textit{Palavras-chave --}} #1
 }
- % define algorithm2e comments
+% define algorithm2e comments
 \SetKwComment{Comment}{/* }{ */}
 
 \setlength{\parindent}{2em}
 \setlength{\parskip}{\baselineskip}
 \titleformat{\chapter}[display]
-   {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\Huge}
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\Huge}
 \titlespacing*{\chapter}{0pt}{0pt}{30pt}
 
-\title{{\bf Computação Natural}\\ Mestrado em Engenharia Informática - 1.º ano\\ \vspace*{1cm} José Paulo Barroso de Moura Oliveira\\ Eduardo José Solteiro Pires\\ \vspace*{3cm}\textbf{Trabalho Prático}\\ Simulação de Incêndios Florestais Baseada em Agentes \vspace*{1cm}}
+\title{\textbf{Computação Natural}\\ Mestrado em Engenharia Informática - 1.º ano\\ \vspace*{1cm} José Paulo Barroso de Moura Oliveira\\ Eduardo José Solteiro Pires\\ \vspace*{3cm}\textbf{Trabalho Prático}\\ Simulação de Incêndios Florestais Baseada em Agentes \vspace*{1cm}}
 \author{Diogo Medeiros (70633) \and João Santos (68843)}
 \date{março 2023}
 
 \begin{document}
 
-\begin{figure}
-\includegraphics[width=8cm]{paper/images/utad.png}
-\end{figure}
+    \begin{figure}
+        \includegraphics[width=8cm]{images/utad}
+        \label{fig:figure}
+    \end{figure}
 
-\maketitle
+    \maketitle
 
-\begin{abstract}
+    \begin{abstract}
 
-Neste trabalho, será desenvolvido um sistema computacional baseado em agentes racionais, utilizando a ferramenta NetLogo, com o objetivo de simular a propagação de incêndios florestais, levando em consideração diversos fatores ambientais. Pretende-se entender melhor o comportamento do fogo em diferentes situações e determinar as melhores estratégias de combate e prevenção. Para alcançar esse objetivo, serão simulados quatro cenários distintos, variando a inclinação do terreno e a direção e intensidade do vento.
+        Neste trabalho, será desenvolvido um sistema computacional baseado em agentes racionais, utilizando a ferramenta NetLogo, para simular a propagação de incêndios florestais, considerando diversos fatores ambientais.
+        Pretende-se entender melhor o comportamento do fogo em diferentes situações e determinar as melhores estratégias de combate e prevenção.
+        Para alcançar esse objetivo, serão simulados quatro cenários distintos, variando a inclinação do terreno e a direção e intensidade do vento.
 
-Através deste estudo, espera-se demonstrar a importância e complexidade da simulação de incêndios florestais e destacar o valor das abordagens baseadas em agentes para aprofundar a compreensão das interações e comportamentos envolvidos. O trabalho servirá como base para futuras investigações e melhorias no campo da prevenção e combate a incêndios florestais, procurando modelos mais refinados e eficazes que reduzam o impacto dos incêndios florestais nas pessoas e nos ecossistemas.
+        Através deste estudo, espera-se demonstrar a importância e complexidade da simulação de incêndios florestais e destacar o valor das abordagens baseadas em agentes para aprofundar a compreensão das interações e comportamentos envolvidos.
+        O trabalho servirá como base para futuras investigações e melhorias no campo da prevenção e combate a incêndios florestais, procurando modelos mais refinados e eficazes que reduzam o impacto dos incêndios florestais nas pessoas e nos ecossistemas.
 
-\keywords{simulação de incêndios florestais, agentes racionais, modelos baseados em agentes, NetLogo, fatores ambientais, topografia, direção e intensidade do vento, prevenção e combate a incêndios}
+        \keywords{simulação de incêndios florestais, agentes racionais, modelos baseados em agentes, NetLogo, fatores ambientais, topografia, direção e intensidade do vento, prevenção e combate a incêndios}
 
-\end{abstract}
+    \end{abstract}
 
-\tableofcontents
-\listoffigures
-\listoftables
-\listofalgorithms
+    \tableofcontents
+    \listoffigures
+    \listoftables
+    \listofalgorithms
 
-\chapter{Introdução}\label{chapter:introduction}
-\input{chapters/introduction}
 
-\chapter{Problema}\label{chapter:problem}
-A simulação de incêndios florestais é um desafio importante para os profissionais que trabalham na prevenção e combate a incêndios. Essa tarefa é essencial para entender o comportamento dos incêndios em diferentes situações, e determinar as melhores táticas de combate. Para realizar essa análise de forma eficiente, é necessário considerar diversos fatores que afetam o comportamento do fogo, como topografia, vento, temperatura, fagulhas e tipo de árvores presentes na região.
+    \chapter{Introdução}\label{ch:introduction}
+    \input{chapters/introduction}
 
-Para realizar essas simulações com precisão e rapidez, o uso de sistemas de agentes inteligentes tem se mostrado uma opção promissora. Esses sistemas permitem a criação de modelos complexos, que levam em conta uma grande quantidade de variáveis, e podem simular o comportamento do fogo em tempo real. Além disso, é possível utilizar algoritmos de aprendizado de máquina para otimizar a tática de combate, e reduzir o risco de acidentes ou danos à fauna e flora local.
 
-O modelo de simulação construído deverá apresentar um gráfico com o número de árvores queimadas ao longo do tempo, além de armazenar esses dados em ficheiro. O algoritmo deverá ser executado múltiplas vezes para cada cenário, a fim de garantir a veracidade  dos resultados.
+    \chapter{Problema}\label{ch:problem}
+    A simulação de incêndios florestais é um desafio importante para os profissionais que trabalham na prevenção e combate a incêndios.
+    Essa tarefa é essencial para entender o comportamento dos incêndios em diferentes situações, e determinar as melhores táticas de combate.
+    Para realizar essa análise de forma eficiente, é necessário considerar diversos fatores que afetam o comportamento do fogo, como topografia, vento, temperatura, fagulhas e tipo de árvores presentes na região.
 
-\chapter{Metodologia}\label{chapter:methodology}
-\input{paper/chapters/methodology}
+    Para realizar essas simulações com precisão e rapidez, o uso de sistemas de agentes inteligentes tem se mostrado uma opção promissora.
+    Esses sistemas permitem a criação de modelos complexos, que consideram uma abundante de variáveis, e podem simular o comportamento do fogo em tempo real.
+    Além disso, é possível utilizar algoritmos de aprendizado de máquina para otimizar a tática de combate, e reduzir o risco de acidentes ou danos à fauna e flora local.
 
-\chapter{Resultados}\label{chapter:results}
-\input{paper/chapters/results}
+    O modelo de simulação construído deverá apresentar um gráfico com o número de árvores queimadas ao longo do tempo, além de armazenar esses dados em ficheiro.
+    O algoritmo deverá ser executado múltiplas vezes para cada cenário, de modo a garantir a veracidade dos resultados.
 
-\chapter{Conclusões}
-\input{paper/chapters/conclusions}
 
-\appendix
-\chapter{Anexos dos ficheiros fonte}\label{chapter:appendix}
-\section{Especificação do modelo de simulação em NetLogo}\label{sec:model_spec}
-\inputminted[breaklines]{nl-lexer.py:NetLogoLexer -x}{../src/forest_fire.nlogo}
+    \chapter{Metodologia}\label{ch:methodology}
+    \input{chapters/methodology}
 
-\section{Especificação do módulo de processamento de dados em Python}\label{sec:data_proc}
-\subsection{Programa principal}
-\inputminted[breaklines]{python}{../src/main.py}
 
-\subsection{Definição da classe Scenario}
-\inputminted[breaklines]{python}{../src/forestfire/scenario.py}
+    \chapter{Resultados}\label{ch:results}
+    \input{chapters/results}
 
-\subsection{Definição da classe Run}
-\inputminted[breaklines]{python}{../src/forestfire/run.py}
 
-\bibliographystyle{IEEEtran}
-\bibliography{paper/references}
+    \chapter{Conclusões}\label{ch:conclusoes}
+    \input{chapters/conclusions}
+
+    \appendix
+
+
+    \chapter{Anexos dos ficheiros fonte}\label{ch:appendix}
+
+
+    \section{Especificação do modelo de simulação em NetLogo}\label{sec:model_spec}
+    \inputminted[breaklines]{nl-lexer.py:NetLogoLexer -x}{../src/forest_fire.nlogo}
+
+
+    \section{Especificação do módulo de processamento de dados em Python}\label{sec:data_proc}
+
+    \subsection{Programa principal}\label{subsec:programa-principal}
+    \inputminted[breaklines]{python}{../src/main.py}
+
+    \subsection{Definição da classe Scenario}\label{subsec:definicao-da-classe-scenario}
+    \inputminted[breaklines]{python}{../src/forestfire/scenario.py}
+
+    \subsection{Definição da classe Run}\label{subsec:definicao-da-classe-run}
+    \inputminted[breaklines]{python}{../src/forestfire/run.py}
+
+    \bibliographystyle{IEEEtran}
+    \bibliography{references}
 
 \end{document}
 
