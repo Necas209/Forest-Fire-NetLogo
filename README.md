@@ -1,6 +1,7 @@
 # Forest-Fire-NetLogo
 
-NetLogo project for modeling the spread of a forest fire.
+NetLogo project for modeling the spread of a forest fire. The corresponding report can be read at [Forest Fire Agent-Based Modelling
+](http://dx.doi.org/10.13140/RG.2.2.34523.75043).
 
 ## Description
 
